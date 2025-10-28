@@ -21,8 +21,11 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-
-  MyEC2Instane: 
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  MyEC2Instance: 
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
@@ -32,9 +35,52 @@ Resources:
         - !Ref MySecurityGroup
       Tags: 
         - Key: Name
-          Value: MyEC2Instane-demo
+          Value: MyEC2Instance-demo
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MyTargetGroup
+      Port: 80
+      Protocol: HTTP
+      VpcId: vpc-05cb73f58914627e2
+      TargetType: instance
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: 80
+      HealthCheckPath: /
+
+  MyLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: MyALB
+      Subnets:
+        -  subnet-073d2c7546bf755e2
+        -  subnet-0ac52011ca5016dc6
+      SecurityGroups:
+        - !Ref MySecurityGroup
+      Scheme: internet-facing
+      Type: application
+
+  MyListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MyTargetGroup
+      LoadBalancerArn: !Ref MyLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  MyTargetGroupAttachment:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref MyTargetGroup
+      TargetId: !Ref MyEC2Instance
+      Port: 80
+
 
 Outputs: 
   InstanceId: 
     Description: The instance id of the ec2
-    Value : !Ref MyEC2Instane
+    Value : !Ref MyEC2Instance
+  LoadBalancerDNS:
+      Description: DNS name of the ALB
+      Value: !GetAtt MyLoadBalancer.DNSName
