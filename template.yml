@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: "Create a ec2 server with sg using CF"
+Description: "Create an EC2 server with Security Group using CloudFormation (only if t2.micro)"
+
 Parameters:
   InstanceType:
     Type: String
@@ -9,32 +10,37 @@ Parameters:
       - t2.micro
       - t2.small
       - t2.medium
-      - t3.micro 
-    ConstraintDescription: must be a valid EC2 instance type fro the list above
+      - t3.micro
+    ConstraintDescription: must be a valid EC2 instance type from the list above
+
+Conditions:
+  CreateInstance: !Equals [!Ref InstanceType, t2.micro]
+
 Resources:
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow SSH 
+      GroupDescription: Allow SSH
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
 
-  MyEC2Instane: 
+  MyEC2Instance:
     Type: AWS::EC2::Instance
+    Condition: CreateInstance        
     Properties:
       InstanceType: !Ref InstanceType
       ImageId: ami-00af95fa354fdb788
-      # KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref MySecurityGroup
-      Tags: 
+      Tags:
         - Key: Name
-          Value: MyEC2Instane-demo
+          Value: !Sub "MyEC2Instance-${InstanceType}"
 
-Outputs: 
-  InstanceId: 
-    Description: The instance id of the ec2
-    Value : !Ref MyEC2Instane
+Outputs:
+  InstanceId:
+    Description: The EC2 instance ID
+    Value: !If [CreateInstance, !Ref MyEC2Instance, "Instance not created"]
+
