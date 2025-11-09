@@ -7,3 +7,19 @@ Resources:
     Properties:
       ImageId: ami-0305d3d91b9f22e84
       InstanceType: t2.micro
+      SecurityGroupIds:
+      - !Ref MySecurityGroup
+      Tags:
+        - Key: Name
+          Value: CF-Demo-Instance
+    
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow SSH 
+      SecurityGroupIngress:
+         - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0
+
