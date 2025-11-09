@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Demo - Launch a simple EC2 instance using CloudFormation
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0305d3d91b9f22e84
+      InstanceType: t2.micro
