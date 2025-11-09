@@ -6,13 +6,12 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0305d3d91b9f22e84
-      InstanceType: t2.micro
+      InstanceType: t2.micro        
       SecurityGroupIds:
-      - !Ref MySecurityGroup
+        - !Ref MySecurityGroup
       Tags:
         - Key: Name
           Value: CF-Demo-Instance
-    
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
